@@ -36,12 +36,41 @@ import csv
 import sys
 import random
 import ssl
+import httplib
 
 import boto
 import boto.ec2
 import paramiko
 
 STATE_FILENAME = os.path.expanduser('~/.bees')
+
+
+class HTTPSConnectionV3(httplib.HTTPSConnection):
+    def __init__(self, *args, **kwargs):
+        httplib.HTTPSConnection.__init__(self, *args, **kwargs)
+
+    def connect(self):
+        sock = socket.create_connection((self.host, self.port), self.timeout)
+        if sys.version_info < (2, 6, 7):
+            if hasattr(self, '_tunnel_host'):
+                self.sock = sock
+                self._tunnel()
+        else:
+            if self._tunnel_host:
+                self.sock = sock
+                self._tunnel()
+        try:
+            self.sock = ssl.wrap_socket(sock, self.key_file, self.cert_file, ssl_version=ssl.PROTOCOL_TLSv1_2)
+        except ssl.SSLError:
+            self.sock = ssl.wrap_socket(sock, self.key_file, self.cert_file, ssl_version=ssl.PROTOCOL_SSLv23)
+
+
+class HTTPSHandlerV3(urllib2.HTTPSHandler):
+    def https_open(self, req):
+        return self.do_open(HTTPSConnectionV3, req)
+
+
+urllib2.install_opener(urllib2.build_opener(HTTPSHandlerV3()))
 
 # Utilities
 
