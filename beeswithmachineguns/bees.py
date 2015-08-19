@@ -356,7 +356,7 @@ def _attack(params):
             options += ' -A %s' % params['basic_auth']
 
         params['options'] = options
-        benchmark_command = 'ab -v 3 -r -f TLS1.2 -n %(num_requests)s -c %(concurrent_requests)s %(options)s "%(url)s"' % params
+        benchmark_command = 'ab -v 3 -r -n %(num_requests)s -c %(concurrent_requests)s %(options)s "%(url)s"' % params
         stdin, stdout, stderr = client.exec_command(benchmark_command)
 
         response = {}
