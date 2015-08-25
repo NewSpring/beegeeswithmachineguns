@@ -44,34 +44,6 @@ import paramiko
 
 STATE_FILENAME = os.path.expanduser('~/.bees')
 
-
-class HTTPSConnectionV3(httplib.HTTPSConnection):
-    def __init__(self, *args, **kwargs):
-        httplib.HTTPSConnection.__init__(self, *args, **kwargs)
-
-    def connect(self):
-        sock = socket.create_connection((self.host, self.port), self.timeout)
-        if sys.version_info < (2, 6, 7):
-            if hasattr(self, '_tunnel_host'):
-                self.sock = sock
-                self._tunnel()
-        else:
-            if self._tunnel_host:
-                self.sock = sock
-                self._tunnel()
-        try:
-            self.sock = ssl.wrap_socket(sock, self.key_file, self.cert_file, ssl_version=ssl.PROTOCOL_TLSv1_2)
-        except ssl.SSLError:
-            self.sock = ssl.wrap_socket(sock, self.key_file, self.cert_file, ssl_version=ssl.PROTOCOL_SSLv23)
-
-
-class HTTPSHandlerV3(urllib2.HTTPSHandler):
-    def https_open(self, req):
-        return self.do_open(HTTPSConnectionV3, req)
-
-
-urllib2.install_opener(urllib2.build_opener(HTTPSHandlerV3()))
-
 # Utilities
 
 def _read_server_list():
@@ -280,6 +252,87 @@ def down():
 
     _delete_server_list()
 
+def init():
+    """
+    Initalize the servers.
+    """
+    print 'Training the bees.'
+
+    username, key_name, zone, instance_ids = _read_server_list()
+
+    if not instance_ids:
+        print 'No bees are ready to attack.'
+        return
+
+    print 'Connecting to the hive.'
+
+    ec2_connection = boto.ec2.connect_to_region(_get_region(zone))
+
+    print 'Assembling bees.'
+
+    reservations = ec2_connection.get_all_instances(instance_ids=instance_ids)
+
+    instances = []
+
+    for reservation in reservations:
+        instances.extend(reservation.instances)
+
+    params = []
+
+    for i, instance in enumerate(instances):
+        params.append({
+            'i': i,
+            'instance_id': instance.id,
+            'instance_name': instance.private_dns_name if instance.public_dns_name == "" else instance.public_dns_name,
+            'username': username,
+            'key_name': key_name
+        })
+
+    pool = Pool(len(params))
+    pool.map(_init, params)
+    return
+
+def _init(params):
+    """
+    Run the init on each server
+    """
+    print 'Bee %i is gon\' learn today.' % params['i']
+
+    try:
+        client = paramiko.SSHClient()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+        pem_path = params.get('key_name') and _get_pem_path(params['key_name']) or None
+        if not os.path.isfile(pem_path):
+            client.load_system_host_keys()
+            client.connect(params['instance_name'], username=params['username'])
+        else:
+            client.connect(
+                params['instance_name'],
+                username=params['username'],
+                key_filename=pem_path)
+
+        # clone down the repo
+        init_command = 'git clone https://github.com/NewSpring/checkin-test'
+        stdin, stdout, stderr = client.exec_command(init_command)
+
+        init_results = stdout.read()
+        init_error = stderr.read()
+
+        if 'fatal' in init_error:
+            print 'Bee %i is above this.' % params['i']
+        else:
+            print 'Bee %i done learned.' % params['i']
+
+
+        # install dependencies
+        # install_command = 'cd checkin-test && npm
+
+        return init_results
+    except socket.error, e:
+        return e
+
+
 def _wait_for_spot_request_fulfillment(conn, requests, fulfilled_requests = []):
     """
     Wait until all spot requests are fulfilled.
@@ -356,222 +409,20 @@ def _attack(params):
             options += ' -A %s' % params['basic_auth']
 
         params['options'] = options
-        benchmark_command = 'ab -v 3 -r -n %(num_requests)s -c %(concurrent_requests)s %(options)s "%(url)s"' % params
-        stdin, stdout, stderr = client.exec_command(benchmark_command)
 
-        response = {}
+        test_command = 'cd checkin-test && export PATH=$PATH:/home/ubuntu/npm/bin && export NODE_PATH=$NODE_PATH:/home/ubuntu/npm/lib/node_modules && norma build'
+        stdin, stdout, stderr = client.exec_command(test_command)
 
-        ab_results = stdout.read()
-        ms_per_request_search = re.search('Time\ per\ request:\s+([0-9.]+)\ \[ms\]\ \(mean\)', ab_results)
+        test_results = stdout.read()
+        test_error = stderr.read()
 
-        if not ms_per_request_search:
-            print 'Bee %i lost sight of the target (connection timed out running ab).' % params['i']
-            return None
+        print test_results
+        print test_error
 
-        requests_per_second_search = re.search('Requests\ per\ second:\s+([0-9.]+)\ \[#\/sec\]\ \(mean\)', ab_results)
-        failed_requests = re.search('Failed\ requests:\s+([0-9.]+)', ab_results)
-        response['failed_requests_connect'] = 0
-        response['failed_requests_receive'] = 0
-        response['failed_requests_length'] = 0
-        response['failed_requests_exceptions'] = 0
-        if float(failed_requests.group(1)) > 0:
-            failed_requests_detail = re.search('(Connect: [0-9.]+, Receive: [0-9.]+, Length: [0-9.]+, Exceptions: [0-9.]+)', ab_results)
-            if failed_requests_detail:
-                response['failed_requests_connect'] = float(re.search('Connect:\s+([0-9.]+)', failed_requests_detail.group(0)).group(1))
-                response['failed_requests_receive'] = float(re.search('Receive:\s+([0-9.]+)', failed_requests_detail.group(0)).group(1))
-                response['failed_requests_length'] = float(re.search('Length:\s+([0-9.]+)', failed_requests_detail.group(0)).group(1))
-                response['failed_requests_exceptions'] = float(re.search('Exceptions:\s+([0-9.]+)', failed_requests_detail.group(0)).group(1))
+        return test_results
 
-        complete_requests_search = re.search('Complete\ requests:\s+([0-9]+)', ab_results)
-
-        response['number_of_200s'] = len(re.findall('HTTP/1.1\ 2[0-9][0-9]', ab_results))
-        response['number_of_300s'] = len(re.findall('HTTP/1.1\ 3[0-9][0-9]', ab_results))
-        response['number_of_400s'] = len(re.findall('HTTP/1.1\ 4[0-9][0-9]', ab_results))
-        response['number_of_500s'] = len(re.findall('HTTP/1.1\ 5[0-9][0-9]', ab_results))
-
-        response['ms_per_request'] = float(ms_per_request_search.group(1))
-        response['requests_per_second'] = float(requests_per_second_search.group(1))
-        response['failed_requests'] = float(failed_requests.group(1))
-        response['complete_requests'] = float(complete_requests_search.group(1))
-
-        stdin, stdout, stderr = client.exec_command('cat %(csv_filename)s' % params)
-        response['request_time_cdf'] = []
-        for row in csv.DictReader(stdout):
-            row["Time in ms"] = float(row["Time in ms"])
-            response['request_time_cdf'].append(row)
-        if not response['request_time_cdf']:
-            print 'Bee %i lost sight of the target (connection timed out reading csv).' % params['i']
-            return None
-
-        print 'Bee %i is out of ammo.' % params['i']
-
-        client.close()
-
-        return response
     except socket.error, e:
         return e
-
-
-def _summarize_results(results, params, csv_filename):
-    summarized_results = dict()
-    summarized_results['timeout_bees'] = [r for r in results if r is None]
-    summarized_results['exception_bees'] = [r for r in results if type(r) == socket.error]
-    summarized_results['complete_bees'] = [r for r in results if r is not None and type(r) != socket.error]
-    summarized_results['timeout_bees_params'] = [p for r, p in zip(results, params) if r is None]
-    summarized_results['exception_bees_params'] = [p for r, p in zip(results, params) if type(r) == socket.error]
-    summarized_results['complete_bees_params'] = [p for r, p in zip(results, params) if r is not None and type(r) != socket.error]
-    summarized_results['num_timeout_bees'] = len(summarized_results['timeout_bees'])
-    summarized_results['num_exception_bees'] = len(summarized_results['exception_bees'])
-    summarized_results['num_complete_bees'] = len(summarized_results['complete_bees'])
-
-    complete_results = [r['complete_requests'] for r in summarized_results['complete_bees']]
-    summarized_results['total_complete_requests'] = sum(complete_results)
-
-    complete_results = [r['failed_requests'] for r in summarized_results['complete_bees']]
-    summarized_results['total_failed_requests'] = sum(complete_results)
-
-    complete_results = [r['failed_requests_connect'] for r in summarized_results['complete_bees']]
-    summarized_results['total_failed_requests_connect'] = sum(complete_results)
-
-    complete_results = [r['failed_requests_receive'] for r in summarized_results['complete_bees']]
-    summarized_results['total_failed_requests_receive'] = sum(complete_results)
-
-    complete_results = [r['failed_requests_length'] for r in summarized_results['complete_bees']]
-    summarized_results['total_failed_requests_length'] = sum(complete_results)
-
-    complete_results = [r['failed_requests_exceptions'] for r in summarized_results['complete_bees']]
-    summarized_results['total_failed_requests_exceptions'] = sum(complete_results)
-
-    complete_results = [r['number_of_200s'] for r in summarized_results['complete_bees']]
-    summarized_results['total_number_of_200s'] = sum(complete_results)
-
-    complete_results = [r['number_of_300s'] for r in summarized_results['complete_bees']]
-    summarized_results['total_number_of_300s'] = sum(complete_results)
-
-    complete_results = [r['number_of_400s'] for r in summarized_results['complete_bees']]
-    summarized_results['total_number_of_400s'] = sum(complete_results)
-
-    complete_results = [r['number_of_500s'] for r in summarized_results['complete_bees']]
-    summarized_results['total_number_of_500s'] = sum(complete_results)
-
-    complete_results = [r['requests_per_second'] for r in summarized_results['complete_bees']]
-    summarized_results['mean_requests'] = sum(complete_results)
-
-    complete_results = [r['ms_per_request'] for r in summarized_results['complete_bees']]
-    if summarized_results['num_complete_bees'] == 0:
-        summarized_results['mean_response'] = "no bees are complete"
-    else:
-        summarized_results['mean_response'] = sum(complete_results) / summarized_results['num_complete_bees']
-
-    summarized_results['tpr_bounds'] = params[0]['tpr']
-    summarized_results['rps_bounds'] = params[0]['rps']
-
-    if summarized_results['tpr_bounds'] is not None:
-        if summarized_results['mean_response'] < summarized_results['tpr_bounds']:
-            summarized_results['performance_accepted'] = True
-        else:
-            summarized_results['performance_accepted'] = False
-
-    if summarized_results['rps_bounds'] is not None:
-        if summarized_results['mean_requests'] > summarized_results['rps_bounds'] and summarized_results['performance_accepted'] is True or None:
-            summarized_results['performance_accepted'] = True
-        else:
-            summarized_results['performance_accepted'] = False
-
-    summarized_results['request_time_cdf'] = _get_request_time_cdf(summarized_results['total_complete_requests'], summarized_results['complete_bees'])
-    if csv_filename:
-        _create_request_time_cdf_csv(results, summarized_results['complete_bees_params'], summarized_results['request_time_cdf'], csv_filename)
-
-    return summarized_results
-
-
-def _create_request_time_cdf_csv(results, complete_bees_params, request_time_cdf, csv_filename):
-    if csv_filename:
-        with open(csv_filename, 'w') as stream:
-            writer = csv.writer(stream)
-            header = ["% faster than", "all bees [ms]"]
-            for p in complete_bees_params:
-                header.append("bee %(instance_id)s [ms]" % p)
-            writer.writerow(header)
-            for i in range(100):
-                row = [i, request_time_cdf[i]] if i < len(request_time_cdf) else [i,float("inf")]
-                for r in results:
-                    if r is not None:
-                    	row.append(r['request_time_cdf'][i]["Time in ms"])
-                writer.writerow(row)
-
-
-def _get_request_time_cdf(total_complete_requests, complete_bees):
-    # Recalculate the global cdf based on the csv files collected from
-    # ab. Can do this by sampling the request_time_cdfs for each of
-    # the completed bees in proportion to the number of
-    # complete_requests they have
-    n_final_sample = 100
-    sample_size = 100 * n_final_sample
-    n_per_bee = [int(r['complete_requests'] / total_complete_requests * sample_size)
-                 for r in complete_bees]
-    sample_response_times = []
-    for n, r in zip(n_per_bee, complete_bees):
-        cdf = r['request_time_cdf']
-        for i in range(n):
-            j = int(random.random() * len(cdf))
-            sample_response_times.append(cdf[j]["Time in ms"])
-    sample_response_times.sort()
-    request_time_cdf = sample_response_times[0:sample_size:sample_size / n_final_sample]
-
-    return request_time_cdf
-
-
-def _print_results(summarized_results):
-    """
-    Print summarized load-testing results.
-    """
-    if summarized_results['exception_bees']:
-        print '     %i of your bees didn\'t make it to the action. They might be taking a little longer than normal to find their machine guns, or may have been terminated without using "bees down".' % summarized_results['num_exception_bees']
-
-    if summarized_results['timeout_bees']:
-        print '     Target timed out without fully responding to %i bees.' % summarized_results['num_timeout_bees']
-
-    if summarized_results['num_complete_bees'] == 0:
-        print '     No bees completed the mission. Apparently your bees are peace-loving hippies.'
-        return
-
-    print '     Complete requests:\t\t%i' % summarized_results['total_complete_requests']
-
-    print '     Failed requests:\t\t%i' % summarized_results['total_failed_requests']
-    print '          connect:\t\t%i' % summarized_results['total_failed_requests_connect']
-    print '          receive:\t\t%i' % summarized_results['total_failed_requests_receive']
-    print '          length:\t\t%i' % summarized_results['total_failed_requests_length']
-    print '          exceptions:\t\t%i' % summarized_results['total_failed_requests_exceptions']
-    print '     Response Codes:'
-    print '          2xx:\t\t%i' % summarized_results['total_number_of_200s']
-    print '          3xx:\t\t%i' % summarized_results['total_number_of_300s']
-    print '          4xx:\t\t%i' % summarized_results['total_number_of_400s']
-    print '          5xx:\t\t%i' % summarized_results['total_number_of_500s']
-    print '     Requests per second:\t%f [#/sec] (mean of bees)' % summarized_results['mean_requests']
-    if 'rps_bounds' in summarized_results and summarized_results['rps_bounds'] is not None:
-        print '     Requests per second:\t%f [#/sec] (upper bounds)' % summarized_results['rps_bounds']
-
-    print '     Time per request:\t\t%f [ms] (mean of bees)' % summarized_results['mean_response']
-    if 'tpr_bounds' in summarized_results and summarized_results['tpr_bounds'] is not None:
-        print '     Time per request:\t\t%f [ms] (lower bounds)' % summarized_results['tpr_bounds']
-
-    print '     50%% responses faster than:\t%f [ms]' % summarized_results['request_time_cdf'][49]
-    print '     90%% responses faster than:\t%f [ms]' % summarized_results['request_time_cdf'][89]
-
-    if 'performance_accepted' in summarized_results:
-        print '     Performance check:\t\t%s' % summarized_results['performance_accepted']
-
-    if summarized_results['mean_response'] < 500:
-        print 'Mission Assessment: Target crushed bee offensive.'
-    elif summarized_results['mean_response'] < 1000:
-        print 'Mission Assessment: Target successfully fended off the swarm.'
-    elif summarized_results['mean_response'] < 1500:
-        print 'Mission Assessment: Target wounded, but operational.'
-    elif summarized_results['mean_response'] < 2000:
-        print 'Mission Assessment: Target severely compromised.'
-    else:
-        print 'Mission Assessment: Swarm annihilated target.'
 
 
 def attack(url, n, c, **options):
@@ -648,9 +499,6 @@ def attack(url, n, c, **options):
             'basic_auth': options.get('basic_auth')
         })
 
-    print 'Stinging URL so it will be cached for the attack.'
-
-    request = urllib2.Request(url)
     # Need to revisit to support all http verbs.
     if post_file:
         try:
@@ -668,40 +516,17 @@ def attack(url, n, c, **options):
         authentication = base64.encodestring(basic_auth).replace('\n', '')
         request.add_header('Authorization', 'Basic %s' % authentication)
 
-    # Ping url so it will be cached for testing
-    dict_headers = {}
-    if headers is not '':
-        dict_headers = headers = dict(j.split(':') for j in [i.strip() for i in headers.split(';') if i != ''])
-
-    for key, value in dict_headers.iteritems():
-        request.add_header(key, value)
-
-    if url.lower().startswith("https://") and hasattr(ssl, '_create_unverified_context'):
-        context = ssl._create_unverified_context()
-        response = urllib2.urlopen(request, context=context)
-    else:
-        response = urllib2.urlopen(request)
-
-    response.read()
-
     print 'Organizing the swarm.'
     # Spin up processes for connecting to EC2 instances
     pool = Pool(len(params))
     results = pool.map(_attack, params)
 
-    summarized_results = _summarize_results(results, params, csv_filename)
     print 'Offensive complete.'
-    _print_results(summarized_results)
+
+    print results
 
     print 'The swarm is awaiting new orders.'
 
-    if 'performance_accepted' in summarized_results:
-        if summarized_results['performance_accepted'] is False:
-            print("Your targets performance tests did not meet our standard.")
-            sys.exit(1)
-        else:
-            print('Your targets performance tests meet our standards, the Queen sends her regards.')
-            sys.exit(0)
 
 def _redirect_stdout(outfile, func, *args, **kwargs):
     save_out = sys.stdout
