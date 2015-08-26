@@ -65,17 +65,17 @@ commands:
                         action='store', dest='zone', type='string', default='us-east-1d',
                         help="The availability zone to start the instances in (default: us-east-1d).")
     up_group.add_option('-i', '--instance',  metavar="INSTANCE",  nargs=1,
-                        action='store', dest='instance', type='string', default='ami-3705b55c',
-                        help="The instance-id to use for each server from (default: ami-3705b55c).")
+                        action='store', dest='instance', type='string', default='ami-11e0597a',
+                        help="The instance-id to use for each server from (default: ami-11e0597a).")
     up_group.add_option('-t', '--type',  metavar="TYPE",  nargs=1,
-                        action='store', dest='type', type='string', default='t1.micro',
-                        help="The instance-type to use for each server (default: t1.micro).")
+                        action='store', dest='type', type='string', default='t2.micro',
+                        help="The instance-type to use for each server (default: t2.micro).")
     up_group.add_option('-l', '--login',  metavar="LOGIN",  nargs=1,
                         action='store', dest='login', type='string', default='ubuntu',
                         help="The ssh username name to use to connect to the new servers (default: ubuntu).")
     up_group.add_option('-v', '--subnet',  metavar="SUBNET",  nargs=1,
-                        action='store', dest='subnet', type='string', default=None,
-                        help="The vpc subnet id in which the instances should be launched. (default: None).")
+                        action='store', dest='subnet', type='string', default='subnet-fc8736a5',
+                        help="The vpc subnet id in which the instances should be launched. (default: subnet-fc8736a5).")
     up_group.add_option('-b', '--bid', metavar="BID", nargs=1,
                         action='store', dest='bid', type='float', default=None,
                         help="The maximum bid price per spot instance (default: None).")
