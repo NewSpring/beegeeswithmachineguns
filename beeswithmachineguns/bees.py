@@ -313,7 +313,7 @@ def _init(params):
                 key_filename=pem_path)
 
         # clone down the repo
-        init_command = 'git clone https://github.com/NewSpring/checkin-test'
+        init_command = 'rm -rf checkin-test && git clone https://github.com/NewSpring/checkin-test && cd checkin-test && npm i'
         stdin, stdout, stderr = client.exec_command(init_command)
 
         init_results = stdout.read()
@@ -410,7 +410,7 @@ def _attack(params):
 
         params['options'] = options
 
-        test_command = 'cd checkin-test && export PATH=$PATH:/home/ubuntu/npm/bin && export NODE_PATH=$NODE_PATH:/home/ubuntu/npm/lib/node_modules && norma build'
+        test_command = 'cd checkin-test && export PATH=$PATH:/home/ubuntu/npm/bin && export NODE_PATH=$NODE_PATH:/home/ubuntu/npm/lib/node_modules && npm run attack'
         stdin, stdout, stderr = client.exec_command(test_command)
 
         test_results = stdout.read()
@@ -522,8 +522,6 @@ def attack(url, n, c, **options):
     results = pool.map(_attack, params)
 
     print 'Offensive complete.'
-
-    print results
 
     print 'The swarm is awaiting new orders.'
 
