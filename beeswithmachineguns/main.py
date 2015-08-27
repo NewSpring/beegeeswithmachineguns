@@ -173,6 +173,8 @@ commands:
         bees.down()
     elif command == 'report':
         bees.report()
+    elif command == 'damage':
+        bees.damage()
 
 def main():
     parse_options()
