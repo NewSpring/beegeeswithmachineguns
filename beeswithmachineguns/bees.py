@@ -54,6 +54,7 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
 # Utilities
 
 def _read_server_list():
@@ -385,38 +386,6 @@ def _attack(params):
 
         print 'Bee %i is firing her machine gun. Bang bang!' % params['i']
 
-        options = ''
-        if params['headers'] is not '':
-            for h in params['headers'].split(';'):
-                if h != '':
-                    options += ' -H "%s"' % h.strip()
-
-        stdin, stdout, stderr = client.exec_command('mktemp')
-        params['csv_filename'] = stdout.read().strip()
-        if params['csv_filename']:
-            options += ' -e %(csv_filename)s' % params
-        else:
-            print 'Bee %i lost sight of the target (connection timed out creating csv_filename).' % params['i']
-            return None
-
-        if params['post_file']:
-            pem_file_path=_get_pem_path(params['key_name'])
-            os.system("scp -q -o 'StrictHostKeyChecking=no' -i %s %s %s@%s:/tmp/honeycomb" % (pem_file_path, params['post_file'], params['username'], params['instance_name']))
-            options += ' -T "%(mime_type)s; charset=UTF-8" -p /tmp/honeycomb' % params
-
-        if params['keep_alive']:
-            options += ' -k'
-
-        if params['cookies'] is not '':
-            options += ' -H \"Cookie: %s;sessionid=NotARealSessionID;\"' % params['cookies']
-        else:
-            options += ' -C \"sessionid=NotARealSessionID\"'
-
-        if params['basic_auth'] is not '':
-            options += ' -A %s' % params['basic_auth']
-
-        params['options'] = options
-
         test_command = 'cd checkin-test && export PATH=$PATH:/home/ubuntu/npm/bin && export NODE_PATH=$NODE_PATH:/home/ubuntu/npm/lib/node_modules && npm run attack'
         stdin, stdout, stderr = client.exec_command(test_command)
 
@@ -433,23 +402,11 @@ def _attack(params):
         return e
 
 
-def attack(url, n, c, **options):
+def attack():
     """
     Test the root url of this site.
     """
     username, key_name, zone, instance_ids = _read_server_list()
-    headers = options.get('headers', '')
-    csv_filename = options.get("csv_filename", '')
-    cookies = options.get('cookies', '')
-    post_file = options.get('post_file', '')
-    keep_alive = options.get('keep_alive', False)
-    basic_auth = options.get('basic_auth', '')
-
-    if csv_filename:
-        try:
-            stream = open(csv_filename, 'w')
-        except IOError, e:
-            raise IOError("Specified csv_filename='%s' is not writable. Check permissions or specify a different filename and try again." % csv_filename)
 
     if not instance_ids:
         print 'No bees are ready to attack.'
@@ -470,21 +427,6 @@ def attack(url, n, c, **options):
 
     instance_count = len(instances)
 
-    if n < instance_count * 2:
-        print 'bees: error: the total number of requests must be at least %d (2x num. instances)' % (instance_count * 2)
-        return
-    if c < instance_count:
-        print 'bees: error: the number of concurrent requests must be at least %d (num. instances)' % instance_count
-        return
-    if n < c:
-        print 'bees: error: the number of concurrent requests (%d) must be at most the same as number of requests (%d)' % (c, n)
-        return
-
-    requests_per_instance = int(float(n) / instance_count)
-    connections_per_instance = int(float(c) / instance_count)
-
-    print 'Each of %i bees will fire %s rounds, %s at a time.' % (instance_count, requests_per_instance, connections_per_instance)
-
     params = []
 
     for i, instance in enumerate(instances):
@@ -492,37 +434,9 @@ def attack(url, n, c, **options):
             'i': i,
             'instance_id': instance.id,
             'instance_name': instance.private_dns_name if instance.public_dns_name == "" else instance.public_dns_name,
-            'url': url,
-            'concurrent_requests': connections_per_instance,
-            'num_requests': requests_per_instance,
             'username': username,
-            'key_name': key_name,
-            'headers': headers,
-            'cookies': cookies,
-            'post_file': options.get('post_file'),
-            'keep_alive': options.get('keep_alive'),
-            'mime_type': options.get('mime_type', ''),
-            'tpr': options.get('tpr'),
-            'rps': options.get('rps'),
-            'basic_auth': options.get('basic_auth')
+            'key_name': key_name
         })
-
-    # Need to revisit to support all http verbs.
-    if post_file:
-        try:
-            with open(post_file, 'r') as content_file:
-                content = content_file.read()
-            request.add_data(content)
-        except IOError:
-            print 'bees: error: The post file you provided doesn\'t exist.'
-            return
-
-    if cookies is not '':
-        request.add_header('Cookie', cookies)
-
-    if basic_auth is not '':
-        authentication = base64.encodestring(basic_auth).replace('\n', '')
-        request.add_header('Authorization', 'Basic %s' % authentication)
 
     print 'Organizing the swarm.'
     # Spin up processes for connecting to EC2 instances

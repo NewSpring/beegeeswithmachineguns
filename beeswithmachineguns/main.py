@@ -82,48 +82,6 @@ commands:
 
     parser.add_option_group(up_group)
 
-    attack_group = OptionGroup(parser, "attack",
-                               """Beginning an attack requires only that you specify the -u option with the URL you wish to target.""")
-
-    # Required
-    attack_group.add_option('-u', '--url', metavar="URL", nargs=1,
-                            action='store', dest='url', type='string',
-                            help="URL of the target to attack.")
-    attack_group.add_option('-K', '--keepalive', metavar="KEEP_ALIVE", nargs=0,
-                            action='store', dest='keep_alive', type='string', default=False,
-                            help="Keep-Alive connection.")
-    attack_group.add_option('-p', '--post-file',  metavar="POST_FILE",  nargs=1,
-                            action='store', dest='post_file', type='string', default=False,
-                            help="The POST file to deliver with the bee's payload.")
-    attack_group.add_option('-m', '--mime-type',  metavar="MIME_TYPE",  nargs=1,
-                            action='store', dest='mime_type', type='string', default='text/plain',
-                            help="The MIME type to send with the request.")
-    attack_group.add_option('-n', '--number', metavar="NUMBER", nargs=1,
-                            action='store', dest='number', type='int', default=1000,
-                            help="The number of total connections to make to the target (default: 1000).")
-    attack_group.add_option('-C', '--cookies', metavar="COOKIES", nargs=1, action='store', dest='cookies',
-                            type='string', default='',
-                            help='Cookies to send during http requests. The cookies should be passed using standard cookie formatting, separated by semi-colons and assigned with equals signs.')
-    attack_group.add_option('-c', '--concurrent', metavar="CONCURRENT", nargs=1,
-                            action='store', dest='concurrent', type='int', default=100,
-                            help="The number of concurrent connections to make to the target (default: 100).")
-    attack_group.add_option('-H', '--headers', metavar="HEADERS", nargs=1,
-                            action='store', dest='headers', type='string', default='',
-                            help="HTTP headers to send to the target to attack. Multiple headers should be separated by semi-colons, e.g header1:value1;header2:value2")
-    attack_group.add_option('-e', '--csv', metavar="FILENAME", nargs=1,
-                            action='store', dest='csv_filename', type='string', default='',
-                            help="Store the distribution of results in a csv file for all completed bees (default: '').")
-
-    # Optional
-    attack_group.add_option('-T', '--tpr', metavar='TPR', nargs=1, action='store', dest='tpr', default=None, type='float',
-                            help='The upper bounds for time per request. If this option is passed and the target is below the value a 1 will be returned with the report details (default: None).')
-    attack_group.add_option('-R', '--rps', metavar='RPS', nargs=1, action='store', dest='rps', default=None, type='float',
-                            help='The lower bounds for request per second. If this option is passed and the target is above the value a 1 will be returned with the report details (default: None).')
-    attack_group.add_option('-A', '--basic_auth', metavar='basic_auth', nargs=1, action='store', dest='basic_auth', default='', type='string',
-                            help='BASIC authentication credentials, format auth-username:password (default: None).')
-
-    parser.add_option_group(attack_group)
-
     (options, args) = parser.parse_args()
 
     if len(args) <= 0:
@@ -142,39 +100,12 @@ commands:
 
     elif command == 'init':
         bees.init()
-
     elif command == 'attack':
-        if not options.url:
-            parser.error('To run an attack you need to specify a url with -u')
-
-        parsed = urlparse(options.url)
-        if "/" not in parsed.path:
-            if not parsed.scheme:
-                parsed = urlparse("http://" + options.url + "/")
-            else:
-                parsed = urlparse(options.url + "/")
-        if not parsed.scheme:
-                parsed = urlparse("http://" + options.url)
-        additional_options = dict(
-            cookies=options.cookies,
-            headers=options.headers,
-            post_file=options.post_file,
-            keep_alive=options.keep_alive,
-            mime_type=options.mime_type,
-            csv_filename=options.csv_filename,
-            tpr=options.tpr,
-            rps=options.rps,
-            basic_auth=options.basic_auth
-        )
-
-        bees.attack(options.url, options.number, options.concurrent, **additional_options)
-
+        bees.attack()
     elif command == 'down':
         bees.down()
     elif command == 'report':
         bees.report()
-    elif command == 'damage':
-        bees.damage()
 
 def main():
     parse_options()
