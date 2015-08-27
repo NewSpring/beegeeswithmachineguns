@@ -43,7 +43,7 @@ import boto
 import boto.ec2
 import paramiko
 
-STATE_FILENAME = os.path.expanduser('~/.bees')
+STATE_FILENAME = os.path.expanduser('~/.beegees')
 
 class bcolors:
     HEADER = '\033[95m'
@@ -70,7 +70,7 @@ def _read_server_list():
         text = f.read()
         instance_ids = [i for i in text.split('\n') if i != '']
 
-        print 'Read %i bees from the roster.' % len(instance_ids)
+        print 'Read %i beegees from the roster.' % len(instance_ids)
 
     return (username, key_name, zone, instance_ids)
 
@@ -121,7 +121,7 @@ def up(count, group, zone, image_id, instance_type, username, key_name, subnet, 
         # User, key and zone match existing values and instance ids are found on state file
         if count <= len(instance_ids):
             # Count is less than the amount of existing instances. No need to create new ones.
-            print 'Bees are already assembled and awaiting orders.'
+            print 'BeeGees are already assembled and awaiting orders.'
             return
         else:
             # Count is greater than the amount of existing instances. Need to create the only the extra instances.
@@ -129,7 +129,7 @@ def up(count, group, zone, image_id, instance_type, username, key_name, subnet, 
     elif instance_ids:
         # Instances found on state file but user, key and/or zone not matching existing value.
         # State file only stores one user/key/zone config combination so instances are unusable.
-        print 'Taking down {} unusable bees.'.format(len(instance_ids))
+        print 'Taking down {} unusable beegees.'.format(len(instance_ids))
         # Redirect prints in down() to devnull to avoid duplicate messages
         _redirect_stdout('/dev/null', down)
         # down() deletes existing state file so _read_server_list() returns a blank state
@@ -157,7 +157,7 @@ def up(count, group, zone, image_id, instance_type, username, key_name, subnet, 
         raise Exception("Invalid zone specified? Unable to connect to region using zone name")
 
     if bid:
-        print 'Attempting to call up %i spot bees, this can take a while...' % count
+        print 'Attempting to call up %i spot beegees, this can take a while...' % count
 
         spot_requests = ec2_connection.request_spot_instances(
             image_id=image_id,
@@ -174,7 +174,7 @@ def up(count, group, zone, image_id, instance_type, username, key_name, subnet, 
 
         instances = _wait_for_spot_request_fulfillment(ec2_connection, spot_requests)
     else:
-        print 'Attempting to call up %i bees.' % count
+        print 'Attempting to call up %i beegees.' % count
 
         try:
             reservation = ec2_connection.run_instances(
@@ -187,7 +187,7 @@ def up(count, group, zone, image_id, instance_type, username, key_name, subnet, 
                 placement=None if 'gov' in zone else zone,
                 subnet_id=subnet)
         except boto.exception.EC2ResponseError as e:
-            print "Unable to call bees:", e.message
+            print "Unable to call beegees:", e.message
             return e
 
         instances = reservation.instances
@@ -197,7 +197,7 @@ def up(count, group, zone, image_id, instance_type, username, key_name, subnet, 
         existing_instances = [r.instances[0] for r in existing_reservations]
         map(instances.append, existing_instances)
 
-    print 'Waiting for bees to load their machine guns...'
+    print 'Waiting for beegees to load their machine guns...'
 
     instance_ids = instance_ids or []
 
@@ -210,13 +210,13 @@ def up(count, group, zone, image_id, instance_type, username, key_name, subnet, 
 
         instance_ids.append(instance.id)
 
-        print 'Bee %s is ready for the attack.' % instance.id
+        print 'BeeGee %s is ready for the attack.' % instance.id
 
     ec2_connection.create_tags(instance_ids, { "Name": "a bee!" })
 
     _write_server_list(username, key_name, zone, instances)
 
-    print 'The swarm has assembled %i bees.' % len(instances)
+    print 'The swarm has assembled %i beegees.' % len(instances)
 
 def report():
     """
@@ -225,7 +225,7 @@ def report():
     username, key_name, zone, instance_ids = _read_server_list()
 
     if not instance_ids:
-        print 'No bees have been mobilized.'
+        print 'No beegees have been mobilized.'
         return
 
     ec2_connection = boto.ec2.connect_to_region(_get_region(zone))
@@ -238,7 +238,7 @@ def report():
         instances.extend(reservation.instances)
 
     for instance in instances:
-        print 'Bee %s: %s @ %s' % (instance.id, instance.state, instance.private_ip_address)
+        print 'BeeGee %s: %s @ %s' % (instance.id, instance.state, instance.private_ip_address)
 
 def down():
     """
@@ -247,7 +247,7 @@ def down():
     username, key_name, zone, instance_ids = _read_server_list()
 
     if not instance_ids:
-        print 'No bees have been mobilized.'
+        print 'No beegees have been mobilized.'
         return
 
     print 'Connecting to the hive.'
@@ -259,7 +259,7 @@ def down():
     terminated_instance_ids = ec2_connection.terminate_instances(
         instance_ids=instance_ids)
 
-    print 'Stood down %i bees.' % len(terminated_instance_ids)
+    print 'Stood down %i beegees.' % len(terminated_instance_ids)
 
     _delete_server_list()
 
@@ -267,19 +267,19 @@ def init():
     """
     Initalize the servers.
     """
-    print 'Training the bees.'
+    print 'Training the beegees.'
 
     username, key_name, zone, instance_ids = _read_server_list()
 
     if not instance_ids:
-        print 'No bees are ready to attack.'
+        print 'No beegees are ready to attack.'
         return
 
     print 'Connecting to the hive.'
 
     ec2_connection = boto.ec2.connect_to_region(_get_region(zone))
 
-    print 'Assembling bees.'
+    print 'Assembling beegees.'
 
     reservations = ec2_connection.get_all_instances(instance_ids=instance_ids)
 
@@ -308,7 +308,7 @@ def _init(params):
     """
     Run the init on each server
     """
-    print 'Bee %i is gon\' learn today.' % params['i']
+    print 'BeeGee %i is gon\' learn today.' % params['i']
 
     try:
         client = paramiko.SSHClient()
@@ -332,9 +332,9 @@ def _init(params):
         init_error = stderr.read()
 
         if 'fatal' in init_error:
-            print 'Bee %i is above this.' % params['i']
+            print 'BeeGee %i is above this.' % params['i']
         else:
-            print 'Bee %i done learned.' % params['i']
+            print 'BeeGee %i done learned.' % params['i']
 
         return init_results
     except socket.error, e:
@@ -368,7 +368,7 @@ def _attack(params):
 
     Intended for use with multiprocessing.
     """
-    print 'Bee %i is joining the swarm.' % params['i']
+    print 'BeeGee %i is joining the swarm.' % params['i']
 
     try:
         client = paramiko.SSHClient()
@@ -384,7 +384,7 @@ def _attack(params):
                 username=params['username'],
                 key_filename=pem_path)
 
-        print 'Bee %i is firing her machine gun. Bang bang!' % params['i']
+        print 'BeeGee %i is firing her machine gun. Bang bang!' % params['i']
 
         test_command = 'cd checkin-test && export PATH=$PATH:/home/ubuntu/npm/bin && export NODE_PATH=$NODE_PATH:/home/ubuntu/npm/lib/node_modules && npm run attack'
         stdin, stdout, stderr = client.exec_command(test_command)
@@ -409,14 +409,14 @@ def attack():
     username, key_name, zone, instance_ids = _read_server_list()
 
     if not instance_ids:
-        print 'No bees are ready to attack.'
+        print 'No beegees are ready to attack.'
         return
 
     print 'Connecting to the hive.'
 
     ec2_connection = boto.ec2.connect_to_region(_get_region(zone))
 
-    print 'Assembling bees.'
+    print 'Assembling beegees.'
 
     reservations = ec2_connection.get_all_instances(instance_ids=instance_ids)
 

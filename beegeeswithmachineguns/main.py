@@ -24,20 +24,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 
-import bees
+import beegees
 from urlparse import urlparse
 from optparse import OptionParser, OptionGroup
 
 def parse_options():
     """
-    Handle the command line arguments for spinning up bees
+    Handle the command line arguments for spinning up beegees
     """
     parser = OptionParser(usage="""
-bees COMMAND [options]
+beegees COMMAND [options]
 
-Bees with Machine Guns
+beegeesGees with Machine Guns
 
-A utility for arming (creating) many bees (small EC2 instances) to attack
+A utility for arming (creating) many beegees (small EC2 instances) to attack
 (load test) targets (web applications).
 
 commands:
@@ -48,7 +48,7 @@ commands:
     """)
 
     up_group = OptionGroup(parser, "up",
-                           """In order to spin up new servers you will need to specify at least the -k command, which is the name of the EC2 keypair to use for creating and connecting to the new servers. The bees will expect to find a .pem file with this name in ~/.ssh/. Alternatively, bees can use SSH Agent for the key.""")
+                           """In order to spin up new servers you will need to specify at least the -k command, which is the name of the EC2 keypair to use for creating and connecting to the new servers. The beegees will expect to find a .pem file with this name in ~/.ssh/. Alternatively, beegees can use SSH Agent for the key.""")
 
     # Required
     up_group.add_option('-k', '--key',  metavar="KEY",  nargs=1,
@@ -94,18 +94,18 @@ commands:
             parser.error('To spin up new instances you need to specify a key-pair name with -k')
 
         if options.group == 'default':
-            print 'New bees will use the "default" EC2 security group. Please note that port 22 (SSH) is not normally open on this group. You will need to use to the EC2 tools to open it before you will be able to attack.'
+            print 'New beegees will use the "default" EC2 security group. Please note that port 22 (SSH) is not normally open on this group. You will need to use to the EC2 tools to open it before you will be able to attack.'
 
-        bees.up(options.servers, options.group, options.zone, options.instance, options.type, options.login, options.key, options.subnet, options.bid)
+        beegees.up(options.servers, options.group, options.zone, options.instance, options.type, options.login, options.key, options.subnet, options.bid)
 
     elif command == 'init':
-        bees.init()
+        beegees.init()
     elif command == 'attack':
-        bees.attack()
+        beegees.attack()
     elif command == 'down':
-        bees.down()
+        beegees.down()
     elif command == 'report':
-        bees.report()
+        beegees.report()
 
 def main():
     parse_options()
