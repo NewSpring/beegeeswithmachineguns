@@ -300,669 +300,8 @@ def init():
 
     pool = Pool(len(params))
     pool.map(_init, params)
+
     return
-
-def damage():
-    test_string = """
-[
-    {
-        "stats": {
-            "suites": 6,
-            "tests": 20,
-            "passes": 17,
-            "pending": 0,
-            "failures": 3,
-            "start": "2015-08-26T17:29:17.994Z",
-            "end": "2015-08-26T17:31:30.351Z",
-            "duration": 132357
-        },
-        "tests": [
-            {
-                "title": "should load the admin page",
-                "fullTitle": "Checkin Testing should load the admin page",
-                "duration": 46
-            },
-            {
-                "title": "should select ministry areas to check in to",
-                "fullTitle": "Checkin Testing should select ministry areas to check in to",
-                "duration": 24
-            },
-            {
-                "title": "should go to the search screen",
-                "fullTitle": "Checkin Testing should go to the search screen",
-                "duration": 4181
-            },
-            {
-                "title": "should search for someone",
-                "fullTitle": "Checkin Testing should search for someone",
-                "duration": 604
-            },
-            {
-                "title": "should return results of serach",
-                "fullTitle": "Checkin Testing should return results of serach",
-                "duration": 8
-            },
-            {
-                "title": "should have people selected as active",
-                "fullTitle": "Checkin Testing has results should have people selected as active",
-                "duration": 1
-            },
-            {
-                "title": "should go to the print screen and print",
-                "fullTitle": "Checkin Testing has results should go to the print screen and print",
-                "duration": 798
-            },
-            {
-                "title": "should print",
-                "fullTitle": "Checkin Testing has results should print",
-                "duration": 1
-            },
-            {
-                "title": "should go back to search",
-                "fullTitle": "Checkin Testing has results should go back to search",
-                "duration": 296
-            },
-            {
-                "title": "should have a message about no one found",
-                "fullTitle": "Checkin Testing no results should have a message about no one found",
-                "duration": 1
-            },
-            {
-                "title": "should load the admin page",
-                "fullTitle": "Checkin Testing should load the admin page",
-                "duration": 0
-            },
-            {
-                "title": "should select ministry areas to check in to",
-                "fullTitle": "Checkin Testing should select ministry areas to check in to",
-                "duration": 10010
-            },
-            {
-                "title": "should go to the search screen",
-                "fullTitle": "Checkin Testing should go to the search screen",
-                "duration": 187
-            },
-            {
-                "title": "should search for someone",
-                "fullTitle": "Checkin Testing should search for someone",
-                "duration": 30002
-            },
-            {
-                "title": "should return results of serach",
-                "fullTitle": "Checkin Testing should return results of serach",
-                "duration": 30001
-            },
-            {
-                "title": "should have people selected as active",
-                "fullTitle": "Checkin Testing has results should have people selected as active",
-                "duration": 1
-            },
-            {
-                "title": "should go to the print screen and print",
-                "fullTitle": "Checkin Testing has results should go to the print screen and print",
-                "duration": 0
-            },
-            {
-                "title": "should print",
-                "fullTitle": "Checkin Testing has results should print",
-                "duration": 1
-            },
-            {
-                "title": "should go back to search",
-                "fullTitle": "Checkin Testing has results should go back to search",
-                "duration": 0
-            },
-            {
-                "title": "should have a message about no one found",
-                "fullTitle": "Checkin Testing no results should have a message about no one found",
-                "duration": 30001
-            }
-        ],
-        "failures": [
-            {
-                "title": "should search for someone",
-                "fullTitle": "Checkin Testing should search for someone",
-                "duration": 30002
-            },
-            {
-                "title": "should return results of serach",
-                "fullTitle": "Checkin Testing should return results of serach",
-                "duration": 30001
-            },
-            {
-                "title": "should have a message about no one found",
-                "fullTitle": "Checkin Testing no results should have a message about no one found",
-                "duration": 30001
-            }
-        ],
-        "passes": [
-            {
-                "title": "should load the admin page",
-                "fullTitle": "Checkin Testing should load the admin page",
-                "duration": 46
-            },
-            {
-                "title": "should select ministry areas to check in to",
-                "fullTitle": "Checkin Testing should select ministry areas to check in to",
-                "duration": 24
-            },
-            {
-                "title": "should go to the search screen",
-                "fullTitle": "Checkin Testing should go to the search screen",
-                "duration": 4181
-            },
-            {
-                "title": "should search for someone",
-                "fullTitle": "Checkin Testing should search for someone",
-                "duration": 604
-            },
-            {
-                "title": "should return results of serach",
-                "fullTitle": "Checkin Testing should return results of serach",
-                "duration": 8
-            },
-            {
-                "title": "should have people selected as active",
-                "fullTitle": "Checkin Testing has results should have people selected as active",
-                "duration": 1
-            },
-            {
-                "title": "should go to the print screen and print",
-                "fullTitle": "Checkin Testing has results should go to the print screen and print",
-                "duration": 798
-            },
-            {
-                "title": "should print",
-                "fullTitle": "Checkin Testing has results should print",
-                "duration": 1
-            },
-            {
-                "title": "should go back to search",
-                "fullTitle": "Checkin Testing has results should go back to search",
-                "duration": 296
-            },
-            {
-                "title": "should have a message about no one found",
-                "fullTitle": "Checkin Testing no results should have a message about no one found",
-                "duration": 1
-            },
-            {
-                "title": "should load the admin page",
-                "fullTitle": "Checkin Testing should load the admin page",
-                "duration": 0
-            },
-            {
-                "title": "should select ministry areas to check in to",
-                "fullTitle": "Checkin Testing should select ministry areas to check in to",
-                "duration": 10010
-            },
-            {
-                "title": "should go to the search screen",
-                "fullTitle": "Checkin Testing should go to the search screen",
-                "duration": 187
-            },
-            {
-                "title": "should have people selected as active",
-                "fullTitle": "Checkin Testing has results should have people selected as active",
-                "duration": 1
-            },
-            {
-                "title": "should go to the print screen and print",
-                "fullTitle": "Checkin Testing has results should go to the print screen and print",
-                "duration": 0
-            },
-            {
-                "title": "should print",
-                "fullTitle": "Checkin Testing has results should print",
-                "duration": 1
-            },
-            {
-                "title": "should go back to search",
-                "fullTitle": "Checkin Testing has results should go back to search",
-                "duration": 0
-            }
-        ]
-    },
-    {
-        "stats": {
-            "suites": 6,
-            "tests": 20,
-            "passes": 17,
-            "pending": 0,
-            "failures": 3,
-            "start": "2015-08-26T17:29:17.994Z",
-            "end": "2015-08-26T17:31:30.351Z",
-            "duration": 132357
-        },
-        "tests": [
-            {
-                "title": "should load the admin page",
-                "fullTitle": "Checkin Testing should load the admin page",
-                "duration": 46
-            },
-            {
-                "title": "should select ministry areas to check in to",
-                "fullTitle": "Checkin Testing should select ministry areas to check in to",
-                "duration": 24
-            },
-            {
-                "title": "should go to the search screen",
-                "fullTitle": "Checkin Testing should go to the search screen",
-                "duration": 4181
-            },
-            {
-                "title": "should search for someone",
-                "fullTitle": "Checkin Testing should search for someone",
-                "duration": 604
-            },
-            {
-                "title": "should return results of serach",
-                "fullTitle": "Checkin Testing should return results of serach",
-                "duration": 8
-            },
-            {
-                "title": "should have people selected as active",
-                "fullTitle": "Checkin Testing has results should have people selected as active",
-                "duration": 1
-            },
-            {
-                "title": "should go to the print screen and print",
-                "fullTitle": "Checkin Testing has results should go to the print screen and print",
-                "duration": 798
-            },
-            {
-                "title": "should print",
-                "fullTitle": "Checkin Testing has results should print",
-                "duration": 1
-            },
-            {
-                "title": "should go back to search",
-                "fullTitle": "Checkin Testing has results should go back to search",
-                "duration": 296
-            },
-            {
-                "title": "should have a message about no one found",
-                "fullTitle": "Checkin Testing no results should have a message about no one found",
-                "duration": 1
-            },
-            {
-                "title": "should load the admin page",
-                "fullTitle": "Checkin Testing should load the admin page",
-                "duration": 0
-            },
-            {
-                "title": "should select ministry areas to check in to",
-                "fullTitle": "Checkin Testing should select ministry areas to check in to",
-                "duration": 10010
-            },
-            {
-                "title": "should go to the search screen",
-                "fullTitle": "Checkin Testing should go to the search screen",
-                "duration": 187
-            },
-            {
-                "title": "should search for someone",
-                "fullTitle": "Checkin Testing should search for someone",
-                "duration": 30002
-            },
-            {
-                "title": "should return results of serach",
-                "fullTitle": "Checkin Testing should return results of serach",
-                "duration": 30001
-            },
-            {
-                "title": "should have people selected as active",
-                "fullTitle": "Checkin Testing has results should have people selected as active",
-                "duration": 1
-            },
-            {
-                "title": "should go to the print screen and print",
-                "fullTitle": "Checkin Testing has results should go to the print screen and print",
-                "duration": 0
-            },
-            {
-                "title": "should print",
-                "fullTitle": "Checkin Testing has results should print",
-                "duration": 1
-            },
-            {
-                "title": "should go back to search",
-                "fullTitle": "Checkin Testing has results should go back to search",
-                "duration": 0
-            },
-            {
-                "title": "should have a message about no one found",
-                "fullTitle": "Checkin Testing no results should have a message about no one found",
-                "duration": 30001
-            }
-        ],
-        "failures": [
-            {
-                "title": "should search for someone",
-                "fullTitle": "Checkin Testing should search for someone",
-                "duration": 30002
-            },
-            {
-                "title": "should return results of serach",
-                "fullTitle": "Checkin Testing should return results of serach",
-                "duration": 30001
-            },
-            {
-                "title": "should have a message about no one found",
-                "fullTitle": "Checkin Testing no results should have a message about no one found",
-                "duration": 30001
-            }
-        ],
-        "passes": [
-            {
-                "title": "should load the admin page",
-                "fullTitle": "Checkin Testing should load the admin page",
-                "duration": 46
-            },
-            {
-                "title": "should select ministry areas to check in to",
-                "fullTitle": "Checkin Testing should select ministry areas to check in to",
-                "duration": 24
-            },
-            {
-                "title": "should go to the search screen",
-                "fullTitle": "Checkin Testing should go to the search screen",
-                "duration": 4181
-            },
-            {
-                "title": "should search for someone",
-                "fullTitle": "Checkin Testing should search for someone",
-                "duration": 604
-            },
-            {
-                "title": "should return results of serach",
-                "fullTitle": "Checkin Testing should return results of serach",
-                "duration": 8
-            },
-            {
-                "title": "should have people selected as active",
-                "fullTitle": "Checkin Testing has results should have people selected as active",
-                "duration": 1
-            },
-            {
-                "title": "should go to the print screen and print",
-                "fullTitle": "Checkin Testing has results should go to the print screen and print",
-                "duration": 798
-            },
-            {
-                "title": "should print",
-                "fullTitle": "Checkin Testing has results should print",
-                "duration": 1
-            },
-            {
-                "title": "should go back to search",
-                "fullTitle": "Checkin Testing has results should go back to search",
-                "duration": 296
-            },
-            {
-                "title": "should have a message about no one found",
-                "fullTitle": "Checkin Testing no results should have a message about no one found",
-                "duration": 1
-            },
-            {
-                "title": "should load the admin page",
-                "fullTitle": "Checkin Testing should load the admin page",
-                "duration": 0
-            },
-            {
-                "title": "should select ministry areas to check in to",
-                "fullTitle": "Checkin Testing should select ministry areas to check in to",
-                "duration": 10010
-            },
-            {
-                "title": "should go to the search screen",
-                "fullTitle": "Checkin Testing should go to the search screen",
-                "duration": 187
-            },
-            {
-                "title": "should have people selected as active",
-                "fullTitle": "Checkin Testing has results should have people selected as active",
-                "duration": 1
-            },
-            {
-                "title": "should go to the print screen and print",
-                "fullTitle": "Checkin Testing has results should go to the print screen and print",
-                "duration": 0
-            },
-            {
-                "title": "should print",
-                "fullTitle": "Checkin Testing has results should print",
-                "duration": 1
-            },
-            {
-                "title": "should go back to search",
-                "fullTitle": "Checkin Testing has results should go back to search",
-                "duration": 0
-            }
-        ]
-    },
-    {
-        "stats": {
-            "suites": 6,
-            "tests": 20,
-            "passes": 17,
-            "pending": 0,
-            "failures": 3,
-            "start": "2015-08-26T17:29:17.994Z",
-            "end": "2015-08-26T17:31:30.351Z",
-            "duration": 132357
-        },
-        "tests": [
-            {
-                "title": "should load the admin page",
-                "fullTitle": "Checkin Testing should load the admin page",
-                "duration": 46
-            },
-            {
-                "title": "should select ministry areas to check in to",
-                "fullTitle": "Checkin Testing should select ministry areas to check in to",
-                "duration": 24
-            },
-            {
-                "title": "should go to the search screen",
-                "fullTitle": "Checkin Testing should go to the search screen",
-                "duration": 4181
-            },
-            {
-                "title": "should search for someone",
-                "fullTitle": "Checkin Testing should search for someone",
-                "duration": 604
-            },
-            {
-                "title": "should return results of serach",
-                "fullTitle": "Checkin Testing should return results of serach",
-                "duration": 8
-            },
-            {
-                "title": "should have people selected as active",
-                "fullTitle": "Checkin Testing has results should have people selected as active",
-                "duration": 1
-            },
-            {
-                "title": "should go to the print screen and print",
-                "fullTitle": "Checkin Testing has results should go to the print screen and print",
-                "duration": 798
-            },
-            {
-                "title": "should print",
-                "fullTitle": "Checkin Testing has results should print",
-                "duration": 1
-            },
-            {
-                "title": "should go back to search",
-                "fullTitle": "Checkin Testing has results should go back to search",
-                "duration": 296
-            },
-            {
-                "title": "should have a message about no one found",
-                "fullTitle": "Checkin Testing no results should have a message about no one found",
-                "duration": 1
-            },
-            {
-                "title": "should load the admin page",
-                "fullTitle": "Checkin Testing should load the admin page",
-                "duration": 0
-            },
-            {
-                "title": "should select ministry areas to check in to",
-                "fullTitle": "Checkin Testing should select ministry areas to check in to",
-                "duration": 10010
-            },
-            {
-                "title": "should go to the search screen",
-                "fullTitle": "Checkin Testing should go to the search screen",
-                "duration": 187
-            },
-            {
-                "title": "should search for someone",
-                "fullTitle": "Checkin Testing should search for someone",
-                "duration": 30002
-            },
-            {
-                "title": "should return results of serach",
-                "fullTitle": "Checkin Testing should return results of serach",
-                "duration": 30001
-            },
-            {
-                "title": "should have people selected as active",
-                "fullTitle": "Checkin Testing has results should have people selected as active",
-                "duration": 1
-            },
-            {
-                "title": "should go to the print screen and print",
-                "fullTitle": "Checkin Testing has results should go to the print screen and print",
-                "duration": 0
-            },
-            {
-                "title": "should print",
-                "fullTitle": "Checkin Testing has results should print",
-                "duration": 1
-            },
-            {
-                "title": "should go back to search",
-                "fullTitle": "Checkin Testing has results should go back to search",
-                "duration": 0
-            },
-            {
-                "title": "should have a message about no one found",
-                "fullTitle": "Checkin Testing no results should have a message about no one found",
-                "duration": 30001
-            }
-        ],
-        "failures": [
-            {
-                "title": "should search for someone",
-                "fullTitle": "Checkin Testing should search for someone",
-                "duration": 30002
-            },
-            {
-                "title": "should return results of serach",
-                "fullTitle": "Checkin Testing should return results of serach",
-                "duration": 30001
-            },
-            {
-                "title": "should have a message about no one found",
-                "fullTitle": "Checkin Testing no results should have a message about no one found",
-                "duration": 30001
-            }
-        ],
-        "passes": [
-            {
-                "title": "should load the admin page",
-                "fullTitle": "Checkin Testing should load the admin page",
-                "duration": 46
-            },
-            {
-                "title": "should select ministry areas to check in to",
-                "fullTitle": "Checkin Testing should select ministry areas to check in to",
-                "duration": 24
-            },
-            {
-                "title": "should go to the search screen",
-                "fullTitle": "Checkin Testing should go to the search screen",
-                "duration": 4181
-            },
-            {
-                "title": "should search for someone",
-                "fullTitle": "Checkin Testing should search for someone",
-                "duration": 604
-            },
-            {
-                "title": "should return results of serach",
-                "fullTitle": "Checkin Testing should return results of serach",
-                "duration": 8
-            },
-            {
-                "title": "should have people selected as active",
-                "fullTitle": "Checkin Testing has results should have people selected as active",
-                "duration": 1
-            },
-            {
-                "title": "should go to the print screen and print",
-                "fullTitle": "Checkin Testing has results should go to the print screen and print",
-                "duration": 798
-            },
-            {
-                "title": "should print",
-                "fullTitle": "Checkin Testing has results should print",
-                "duration": 1
-            },
-            {
-                "title": "should go back to search",
-                "fullTitle": "Checkin Testing has results should go back to search",
-                "duration": 296
-            },
-            {
-                "title": "should have a message about no one found",
-                "fullTitle": "Checkin Testing no results should have a message about no one found",
-                "duration": 1
-            },
-            {
-                "title": "should load the admin page",
-                "fullTitle": "Checkin Testing should load the admin page",
-                "duration": 0
-            },
-            {
-                "title": "should select ministry areas to check in to",
-                "fullTitle": "Checkin Testing should select ministry areas to check in to",
-                "duration": 10010
-            },
-            {
-                "title": "should go to the search screen",
-                "fullTitle": "Checkin Testing should go to the search screen",
-                "duration": 187
-            },
-            {
-                "title": "should have people selected as active",
-                "fullTitle": "Checkin Testing has results should have people selected as active",
-                "duration": 1
-            },
-            {
-                "title": "should go to the print screen and print",
-                "fullTitle": "Checkin Testing has results should go to the print screen and print",
-                "duration": 0
-            },
-            {
-                "title": "should print",
-                "fullTitle": "Checkin Testing has results should print",
-                "duration": 1
-            },
-            {
-                "title": "should go back to search",
-                "fullTitle": "Checkin Testing has results should go back to search",
-                "duration": 0
-            }
-        ]
-    }
-]
-    """
-
-    _print_results(test_string)
 
 def _init(params):
     """
@@ -995,10 +334,6 @@ def _init(params):
             print 'Bee %i is above this.' % params['i']
         else:
             print 'Bee %i done learned.' % params['i']
-
-
-        # install dependencies
-        # install_command = 'cd checkin-test && npm
 
         return init_results
     except socket.error, e:
@@ -1085,13 +420,14 @@ def _attack(params):
         test_command = 'cd checkin-test && export PATH=$PATH:/home/ubuntu/npm/bin && export NODE_PATH=$NODE_PATH:/home/ubuntu/npm/lib/node_modules && npm run attack'
         stdin, stdout, stderr = client.exec_command(test_command)
 
-        test_results = stdout.read()
-        test_error = stderr.read()
+        test = stdout.read()
 
-        print test_results
-        print test_error
+        results_command = 'cd checkin-test && export PATH=$PATH:/home/ubuntu/npm/bin && export NODE_PATH=$NODE_PATH:/home/ubuntu/npm/lib/node_modules && npm run details'
+        stdin, stdout, stderr = client.exec_command(results_command)
 
-        return test_results
+        results = stdout.read()
+
+        return results
 
     except socket.error, e:
         return e
@@ -1195,6 +531,8 @@ def attack(url, n, c, **options):
 
     print 'Offensive complete.'
 
+    _print_results(results)
+
     print 'The swarm is awaiting new orders.'
 
 
@@ -1206,8 +544,6 @@ def _redirect_stdout(outfile, func, *args, **kwargs):
     sys.stdout = save_out
 
 def _print_results(results):
-    parsed = json.loads(results)
-
     tests = 0
     passes = 0
     failures = 0
@@ -1215,22 +551,31 @@ def _print_results(results):
 
     failed_tests = []
 
-    for result in parsed:
-        stats = result['stats']
+    # for every machine in the results
+    for machine in results:
+        # remove norma output
+        machine = '\n'.join(machine.split('\n')[4:])
 
-        tests += int(stats['tests'])
-        passes += int(stats['passes'])
-        failures += int(stats['failures'])
-        duration += float(stats['duration'])
+        machine = json.loads(machine)
 
-        for failed_test in result['failures']:
-            failed_tests.append([failed_test['title'], failed_test['duration']])
+        # for every thread generated on that machine
+        for result in machine:
+            stats = result['stats']
+
+            tests += int(stats['tests'])
+            passes += int(stats['passes'])
+            failures += int(stats['failures'])
+            duration += float(stats['duration'])
+
+            for failed_test in result['failures']:
+                failed_tests.append([failed_test['title'], failed_test['duration']])
 
     print '     Tests ran:      %i' % tests
     print '         Successful: %i' % passes
     print bcolors.FAIL + '         Failed:     %i' % failures + bcolors.ENDC
     print '         Duration:   %f seconds' % (float(duration) / 1000)
-    print '     ==================================='
-    print '     Failures:'
-    for failed_test in failed_tests:
-        print bcolors.FAIL + '          %s' % failed_test[0] + ' [%i' % failed_test[1] + ' ms]' + bcolors.ENDC
+    if len(failed_tests) > 0:
+        print '     ==================================='
+        print '     Failures:'
+        for failed_test in failed_tests:
+            print bcolors.FAIL + '          %s' % failed_test[0] + ' [%i' % failed_test[1] + ' ms]' + bcolors.ENDC
