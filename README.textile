@@ -2,7 +2,7 @@ h1. BeeGees with Machine Guns!
 
 The Rock version of beeswithmachineguns.
 
-https://www.youtube.com/watch?v=I_izvAbhExY
+<iframe width="420" height="315" src="https://www.youtube.com/embed/I_izvAbhExY" frameborder="0" allowfullscreen></iframe>
 
 h2. Dependencies
 
@@ -11,3 +11,17 @@ h2. Dependencies
 * Apache Bench 2.4.4 (on EC2 instance)
 * boto
 * paramiko
+
+h2. About
+
+This is a load testing application that spanws Amazon EC2 instances, clones down a mocha-casperjs test from a Github repo, and run the tests on all the servers. It will use an Amazon image that has node, norma, mocha-casperjs, and other dependencies necessary to run the test.
+
+h2. Running
+
+<pre>
+git clone https://github.com/NewSpring/beegeeswithmachineguns
+cd beegeeswithmachineguns
+./beegees up -s NUMBER_OF_SERVERS -g SECURITY_GROUP -k AWS_KEY
+./beegees init
+./beegees attack
+</pre>
