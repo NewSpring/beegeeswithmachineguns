@@ -2,7 +2,7 @@ h1. BeeGees with Machine Guns!
 
 The Rock version of beeswithmachineguns.
 
-<iframe width="420" height="315" src="https://www.youtube.com/embed/I_izvAbhExY" frameborder="0" allowfullscreen></iframe>
+https://www.youtube.com/watch?v=I_izvAbhExY
 
 h2. Dependencies
 
