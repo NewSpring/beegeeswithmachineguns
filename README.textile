@@ -2,6 +2,8 @@ h1. BeeGees with Machine Guns!
 
 The Rock version of beeswithmachineguns.
 
+<img src="http://i.giphy.com/xJ3aVvhe4Unh6.gif" />
+
 https://www.youtube.com/watch?v=I_izvAbhExY
 
 h2. Dependencies
