@@ -24,6 +24,11 @@ h2. Running
 git clone https://github.com/NewSpring/beegeeswithmachineguns
 cd beegeeswithmachineguns
 ./beegees up -s NUMBER_OF_SERVERS -g SECURITY_GROUP -k AWS_KEY
+</pre>
+
+<em>ADD THE IP ADDRESSES TO ROCK IF YOU ROCK</em>
+
+<pre>
 ./beegees init
 ./beegees attack
 </pre>
