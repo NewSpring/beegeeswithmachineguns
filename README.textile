@@ -18,6 +18,15 @@ h2. About
 
 This is a load testing application that spanws Amazon EC2 instances, clones down a mocha-casperjs test from a Github repo, and run the tests on all the servers. It will use an Amazon image that has node, norma, mocha-casperjs, and other dependencies necessary to run the test.
 
+h2. Configure Environment
+
+<pre>
+brew install pyenv
+CFLAGS="-I$(xcrun --show-sdk-path)/usr/include" pyenv install -v 2.7.9
+pyenv global 2.7.9
+pip install boto paramiko
+</pre>
+
 h2. Running
 
 <pre>
