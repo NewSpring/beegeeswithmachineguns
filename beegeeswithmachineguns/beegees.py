@@ -325,7 +325,7 @@ def _init(params):
                 key_filename=pem_path)
 
         # clone down the repo
-        init_command = 'rm -rf checkin-test && git clone https://github.com/NewSpring/ops-checkin-test && cd checkin-test && npm i'
+        init_command = 'rm -rf checkin-test && git clone https://github.com/NewSpring/ops-checkin-test checkin-test && cd checkin-test && npm i'
         stdin, stdout, stderr = client.exec_command(init_command)
 
         init_results = stdout.read()
