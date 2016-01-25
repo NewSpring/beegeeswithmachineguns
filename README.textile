@@ -37,9 +37,21 @@ cd beegeeswithmachineguns
 
 <em>ADD THE IP ADDRESSES TO ROCK IF YOU ROCK</em>
 
+To get all the ip addresses:
+
+<pre>
+./beegees report
+</pre>
+
 <pre>
 ./beegees init
 ./beegees attack
+</pre>
+
+To shut them down:
+
+<pre>
+./beegees down
 </pre>
 
 h2. Spot Instances
